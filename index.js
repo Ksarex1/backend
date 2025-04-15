@@ -1,5 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
+dotenv.config();
+import fs from 'fs';
 import {
   registerValidation,
   loginValidation,
@@ -11,7 +14,7 @@ import { PostController, UserController } from "./controllers/index.js";
 import { handleValidationErrors, checkAuth } from "./utils/index.js";
 
 mongoose
-  .connect("mongodb://localhost:27017/gribniusDB")
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("DB OK"))
   .catch((err) => console.log("DB error", err));
 
@@ -31,6 +34,9 @@ app.use("/uploads", express.static("uploads"));
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
+    if (!fs.existsSync('uploads')){
+      fs.mkdirSync('uploads')
+    }
     cb(null, "uploads");
   },
   filename: (_, file, cb) => {
